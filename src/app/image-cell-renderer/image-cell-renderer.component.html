@@ -1,0 +1,3 @@
+<img style="box-sizing: border-box; padding: 10px;" width="100%" height="100%" src="{{params.value}}"
+    (dblclick)="fileInput.click()" (keypress)="fileInput.click()"/>
+<input type="file" #fileInput (change)="onFileChange($event)" />

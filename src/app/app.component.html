@@ -1,0 +1,39 @@
+<div class="nonprint" style="height: 100%; display: flex; flex-direction: column;">
+  <div style="height: 50px;">
+    <button (click)="print()">Print</button>
+  </div>
+  <div class="container" style="flex: 1;">
+    <ag-grid-angular style="width: auto; height: 100%;" class="ag-theme-alpine" [rowData]="rowData"
+      [defaultColDef]="defaultColDef" [columnDefs]="columnDefs" (gridReady)="onGridReady($event)" [rowHeight]="200">
+    </ag-grid-angular>
+  </div>
+
+
+</div>
+<div *ngIf="showPrintPage" class="frame">
+  <div class="toolbar">
+    <input type="number" [(ngModel)]="fontSize" />
+    <input type="number" [(ngModel)]="marginBottom" />
+    <button (click)="closePrintPopup()">Close</button>
+    <button>+</button>
+    <button>-</button>
+  </div>
+  <div class="document">
+    <div *ngFor="let items of printPages" class="page">
+      <div *ngFor="let item of items" class="item">
+        <div>
+          <img src="{{item.image}}" style="width: 100%;
+          padding: 25px;
+          box-sizing: border-box; margin-top: 20%;">
+        </div>
+        <div class="details" [ngStyle]="{'fontSize':fontSize+'px'}">
+          <div [ngStyle]="{'marginBottom':marginBottom+'px'}">DES : {{item.description}}</div>
+          <div [ngStyle]="{'marginBottom':marginBottom+'px'}">CODE : {{item.code}}</div>
+          <div [ngStyle]="{'marginBottom':marginBottom+'px'}">QTY : {{item.qty}}</div>
+          <div [ngStyle]="{'marginBottom':marginBottom+'px'}">CASE NO : {{item.caseNo}}</div>
+          <div [ngStyle]="{'marginBottom':marginBottom+'px'}">FINISH : {{item.finish}}</div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>

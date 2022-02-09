@@ -28,17 +28,7 @@ export class AppComponent {
     { field: 'finish' },
   ];
 
-  rowData: any[] = [
-    { description: 'W/N CONSOLE TABLE WITH SHELF', code: 'Celica', qty: 20, itemPerCase: 2, caseNo: 'CASE-001', finish: 'Good' },
-    { description: 'WOODEN SIDEBOARD', code: 'Celica', qty: 10, itemPerCase: 2, caseNo: 'CASE-001', finish: 'Good' },
-    { description: 'W/N SIDEBOARD', code: 'Celica', qty: 5, itemPerCase: 2, caseNo: 'CASE-001', finish: 'Good' },
-    // { description: 'W/N LCD CABINET', code: 'Celica', qty: 10, itemPerCase: 2, caseNo: 'CASE-001' },
-    // { description: 'W/N CONSOLE TABLE WITH SHELF', code: 'Celica', qty: 10, itemPerCase: 2, caseNo: 'CASE-001', finish: 'Good' },
-    // { description: 'WOODEN SIDEBOARD', code: 'Celica', qty: 10, itemPerCase: 2, caseNo: 'CASE-001', finish: 'Good' },
-    // { description: 'W/N SIDEBOARD', code: 'Celica', qty: 10, itemPerCase: 2, caseNo: 'CASE-001', finish: 'Good' },
-    // { description: 'W/N LCD CABINET', code: 'Celica', qty: 10, itemPerCase: 2, caseNo: 'CASE-001' }
-
-  ];
+  rowData: any[] = [{}, {}, {}, {}, {}, {}, {}, {}, {}, {}, {}, {}, {}, {}, {}, {}, {}, {}];
 
   printPages: any[] = [];
 
@@ -52,12 +42,11 @@ export class AppComponent {
 
 
 
-    let printPages = [];
+    let printPages: any = [];
     let count = 0;
+    this.gridApi.rowModel.forEachNode((e: any) => {
 
-    for (let i = 0; i < this.rowData.length; i++) {
-
-      let row = this.rowData[i];
+      let row = e.data;
 
       let totalItems = row.qty / row.itemPerCase;
 
@@ -84,7 +73,7 @@ export class AppComponent {
       //let item = this.rowData.slice(i * 4, i * 4 + 4);
 
 
-    }
+    })
     this.printPages.push(printPages);
 
     // setTimeout((e: any) => { window.print(); }, 1000)
@@ -103,6 +92,7 @@ export class AppComponent {
   onGridReady(params: any) {
     this.gridApi = params.api;
     this.gridColumnApi = params.columnApi;
+    this.gridApi.sizeColumnsToFit();
   }
 
   insertNewRowsBeforePaste(event: any) {
@@ -118,6 +108,12 @@ export class AppComponent {
     let focusedCell = this.gridApi.getFocusedCell();
     let startRowIndex = focusedCell.rowIndex;
     let startColIndex = this.columnDefs.findIndex(e => e.field == focusedCell.column.getColId());
+
+
+    let availableRows = this.gridApi.rowModel.getRowCount();
+    if (startRowIndex + rows.length > availableRows) {
+      this.gridApi.updateRowData({ add: Array(rows.length - availableRows).fill({}) });
+    }
 
     for (let i = 0; i < rows.length && rows[i] !== ""; i++) {
       let node = this.gridApi.getRowNode(startRowIndex + i);

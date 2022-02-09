@@ -7,16 +7,23 @@
       [defaultColDef]="defaultColDef" [columnDefs]="columnDefs" (gridReady)="onGridReady($event)" [rowHeight]="200">
     </ag-grid-angular>
   </div>
-
-
 </div>
 <div *ngIf="showPrintPage" class="frame">
   <div class="toolbar">
-    <input type="number" [(ngModel)]="fontSize" />
-    <input type="number" [(ngModel)]="marginBottom" />
-    <button (click)="closePrintPopup()">Close</button>
-    <button>+</button>
-    <button>-</button>
+    <span class="inline input-container">
+      <label>Font Size</label> <br>
+      <input type="number" [(ngModel)]="fontSize" />
+    </span>
+    <span class="inline input-container">
+      <label>Margin</label>
+      <br>
+      <input type="number" [(ngModel)]="marginBottom" />
+    </span>
+    <span class="inline input-container">
+      <button (click)="closePrintPopup()">Close</button>
+    </span>
+    <!-- <button>+</button>
+    <button>-</button> -->
   </div>
   <div class="document">
     <div *ngFor="let items of printPages" class="page">

@@ -1,7 +1,7 @@
 @media print {
 
     .nonprint {
-        display: none!important;
+        display: none !important;
     }
 
     .frame {
@@ -28,7 +28,7 @@
 button {
     background-color: #0089ff;
     color: white;
-    padding: 5px 15px;
+    padding: 10px 15px;
     margin: 5px;
     border: 0px;
     box-shadow: 0px 0px 5px #999;
@@ -43,12 +43,29 @@ button {
     top: 0;
     left: 0;
     background-color: #ccc;
-    padding: 20px;
+
     box-shadow: 0px 0px 10px #555555;
     margin-top: 20px;
     left: 200px;
     display: flex;
     flex-direction: column;
+}
+
+.frame .toolbar {
+    background-color: white;
+    box-shadow: 0px 0px 5px #999;
+    padding: 10px;
+    margin-bottom: 10px;
+}
+
+.frame .toolbar label {
+    font-size: 14px;
+    color: #0c5dc1;
+    font-weight: bold;
+}
+
+.frame .toolbar input {
+    height: 30px;
 }
 
 .inline {
@@ -63,6 +80,7 @@ button {
 .document {
     flex: 1;
     overflow: auto;
+    padding: 20px;
 }
 
 .page {
@@ -97,4 +115,11 @@ button {
     margin-top: 5px;
     margin-bottom: 5px;
     font-weight: bold;
+}
+
+.item img {
+    max-height: 100%;
+    max-width: 100%;
+    padding: 25px;
+    box-sizing: border-box;
 }

@@ -12,15 +12,36 @@ type tplotOptions = {
 })
 export class AppComponent {
   title = 'stickerr';
+  startIndex = 1;
   fontSize = 20;
   marginBottom = 20;
+  showContextMenu = false;
   showPrintPage = false;
   defaultColDef: ColDef = {
     editable: true
   };
 
   columnDefs: ColDef[] = [
-    { field: "image", cellRendererFramework: ImageCellRendererComponent, editable: false, width: 100 },
+    {
+      field: "image", cellRendererFramework: ImageCellRendererComponent, editable: false, width: 100,
+      suppressKeyboardEvent: params => {
+        if (!params.editing) {
+          let isDeleteKey = params.event.keyCode === 46;
+
+          if (isDeleteKey) {
+            let focusedCell = this.gridApi.getFocusedCell();
+            let startRowIndex = focusedCell.rowIndex;
+            let node = this.gridApi.rowModel.getRow(startRowIndex);
+            let data = node.data;
+            data["image"] = "";
+            node.setData(data);
+            // Delete all selected cell ranges...
+            return true
+          }
+        }
+        return false;
+      }
+    },
     { field: 'description' },
     { field: 'code' },
     { field: 'qty' },
@@ -28,12 +49,14 @@ export class AppComponent {
     { field: 'finish' },
   ];
 
-  rowData: any[] = [{},{},{},{},{},{},{},{},{},{}];
+  rowData: any[] = [{}, {}, {}, {}, {}, {}, {}, {}, {}, {}];
 
   printPages: any[] = [];
 
   gridApi: any;
   gridColumnApi: any;
+  contextMenuX: number = 0;;
+  contextMenuY: number = 0;
 
   print() {
     this.printPages = [];
@@ -63,7 +86,7 @@ export class AppComponent {
           code: row.code,
           qty: row.itemPerCase,
           itemPerCase: row.itemPerCase,
-          caseNo: `${++count}`,
+          caseNo: `${count + this.startIndex}`,
           finish: row.finish
         }
         printPages.push(page);
@@ -97,7 +120,23 @@ export class AppComponent {
 
   ngOnInit() {
     window.addEventListener('paste', this.insertNewRowsBeforePaste.bind(this));
+
+    setTimeout(() => {
+      (document.querySelector(".ag-body-viewport") as HTMLElement).addEventListener("contextmenu", (e: any) => {
+        e.preventDefault();
+        this.showContextMenu = true;
+        this.contextMenuX = e.clientX;
+        this.contextMenuY = e.clientY;
+        e.target.focus();
+      });
+    }, 2000);
+
   }
+
+  hideContextMenu() {
+    this.showContextMenu = false;
+  }
+
 
   onGridReady(params: any) {
     this.gridApi = params.api;
@@ -124,7 +163,7 @@ export class AppComponent {
       reader.readAsDataURL(file);
       reader.onload = (e: any) => {
 
-        let node = this.gridApi.getRowNode(startRowIndex);
+        let node = this.gridApi.getRow(startRowIndex);
         let data = Object.assign({}, node.data);
         data["image"] = e.target.result;
         node.setData(data);
@@ -164,7 +203,7 @@ export class AppComponent {
     }
 
     for (let i = 0; i < rows.length && rows[i] !== ""; i++) {
-      let node = this.gridApi.getRowNode(startRowIndex + i);
+      let node = this.gridApi.rowModel.getRow(startRowIndex + i);
       let cells = rows[i].split('\t');
       let data = Object.assign({}, node.data);
       for (let j = 0; j < cells.length; j++) {
@@ -176,8 +215,27 @@ export class AppComponent {
 
   }
 
-  addRows(event: any) {
-    this.gridApi.updateRowData({ add: Array(parseInt(((document.getElementById("add-row-input")) as HTMLInputElement).value)).fill({}) });
+  addRow(event: any) {
+    this.gridApi.updateRowData({
+      add: [{}],
+      addIndex: this.gridApi.getFocusedCell().rowIndex
+    });
     this.gridApi.sizeColumnsToFit();
+    this.hideContextMenu();
+  }
+
+  addRows(event: any) {
+    this.gridApi.updateRowData({
+      add: Array(parseInt(((document.getElementById("add-row-input")) as HTMLInputElement).value)).fill({}),
+      addIndex: this.gridApi.getFocusedCell().rowIndex + 1
+    });
+    this.gridApi.sizeColumnsToFit();
+  }
+
+  deleteRows(event: any) {
+    const selectedRows = this.gridApi.getSelectedRows();
+    this.gridApi.applyTransaction({ remove: selectedRows });
+    this.hideContextMenu();
+    return true;
   }
 }

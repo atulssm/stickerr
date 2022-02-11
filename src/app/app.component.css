@@ -43,12 +43,11 @@ button {
     top: 0;
     left: 0;
     background-color: #ccc;
-
     box-shadow: 0px 0px 10px #555555;
     margin-top: 20px;
-    left: 200px;
     display: flex;
     flex-direction: column;
+    transform: translateX(-50%);
 }
 
 .frame .toolbar {
@@ -122,4 +121,25 @@ button {
     max-width: 100%;
     padding: 25px;
     box-sizing: border-box;
+}
+
+.context-menu {
+    position: absolute;
+    left: 512px;
+    top: 360px;
+    background-color: white;
+    border-radius: 3px;
+    box-sizing: content-box;
+    box-shadow: 0px 0px 5px #999;
+    width: 150px;
+}
+
+.context-menu .menu-item {
+    padding: 5px;
+    cursor: pointer;
+    transition: background-color fade 0.2s;
+}
+
+.context-menu .menu-item:hover {
+    background-color: #eee;
 }

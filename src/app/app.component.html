@@ -2,14 +2,16 @@
   <div style="height: 50px;display: flex;
   justify-content: end;
     align-items: center;">
-    <input type="number" style="height: 30px;" id="add-row-input"/> <button (click)="addRows($event)">Add Rows</button>
-    <span style="width: 10px;"></span>
+    Case From <input type="number" style="height: 30px; width: 50px; text-align: center;" [(ngModel)]="startIndex">
+    <span style="width: 20px;"></span>
+    <input type="number" style="height: 30px;" id="add-row-input" /> <button (click)="addRows($event)">Add Rows</button>
+    <span style="width: 20px;"></span>
     <button (click)="print()">Print</button>
 
   </div>
   <div class="container" style="flex: 1;">
     <ag-grid-angular style="width: auto; height: 100%;" class="ag-theme-alpine" [rowData]="rowData"
-      [defaultColDef]="defaultColDef" [columnDefs]="columnDefs" [rowSelection]="'single'" [tabToNextCell]="onTab"
+      [defaultColDef]="defaultColDef" [columnDefs]="columnDefs" [rowSelection]="'multiple'" [tabToNextCell]="onTab"
       (gridReady)="onGridReady($event)" [rowHeight]="100">
     </ag-grid-angular>
   </div>
@@ -48,3 +50,9 @@
     </div>
   </div>
 </div>
+
+<diV *ngIf="showContextMenu" [ngStyle]="{position:'absolute', left:contextMenuX+'px', top:contextMenuY+'px'}"
+  class="context-menu" tabindex="0">
+  <div class="menu-item" (click)="addRow($event)">Insert Row</div>
+  <div class="menu-item" (click)="deleteRows($event)">Delete Row</div>
+</diV>

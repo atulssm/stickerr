@@ -25,6 +25,19 @@
     }
 }
 
+
+@keyframes append-animate {
+    from {
+        transform: scale(0);
+        opacity: 0;
+    }
+
+    to {
+        transform: scale(1);
+        opacity: 1;
+    }
+}
+
 button {
     background-color: #0089ff;
     color: white;
@@ -47,6 +60,7 @@ button {
     margin-top: 20px;
     display: flex;
     flex-direction: column;
+    left: 50%;
     transform: translateX(-50%);
 }
 
@@ -127,19 +141,25 @@ button {
     position: absolute;
     left: 512px;
     top: 360px;
-    background-color: white;
+    background-color: #eee;
     border-radius: 3px;
     box-sizing: content-box;
-    box-shadow: 0px 0px 5px #999;
+    box-shadow: 0px 0px 10px #999;
     width: 150px;
+    animation: append-animate .1s linear;
+}
+
+.context-menu:focus-visible {
+    outline: none;
 }
 
 .context-menu .menu-item {
-    padding: 5px;
+    padding: 5px 10px;
     cursor: pointer;
-    transition: background-color fade 0.2s;
+    transition: background-color 0.2s;
 }
 
-.context-menu .menu-item:hover {
-    background-color: #eee;
+.context-menu .menu-item.item-active {
+    background-color: #86ccee;
 }
+

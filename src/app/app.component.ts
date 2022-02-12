@@ -1,3 +1,4 @@
+import { keyframes } from '@angular/animations';
 import { Component } from '@angular/core';
 import { CellPosition, ColDef, TabToNextCellParams } from 'ag-grid-community';
 import { ImageCellRendererComponent } from './image-cell-renderer/image-cell-renderer.component';
@@ -12,14 +13,32 @@ type tplotOptions = {
 })
 export class AppComponent {
   title = 'stickerr';
+  activIndex = -1;
   startIndex = 1;
   fontSize = 20;
   marginBottom = 20;
   showContextMenu = false;
   showPrintPage = false;
   defaultColDef: ColDef = {
-    editable: true
+    editable: true,
+    suppressKeyboardEvent: params => {
+      if (params.editing == true && params.event.code == "Enter") {
+        //this.gridApi.stopEditing(false);
+        setTimeout((e: any) => {
+          let focusedCell = this.gridApi.getFocusedCell();
+          this.gridApi.setFocusedCell(focusedCell.rowIndex + 1, focusedCell.column.colId, null);
+        }, 10);
+
+
+      }
+      return false;
+    }
   };
+
+  contextMenu = [
+    { label: 'Add Row', action: this.addRow.bind(this) },
+    { label: 'Delete Row', action: this.deleteRows.bind(this) },
+  ]
 
   columnDefs: ColDef[] = [
     {
@@ -118,19 +137,35 @@ export class AppComponent {
     return nextCellPosition;
   };
 
+  onContextMenuKeyPress(event: any) {
+    switch (event.code) {
+      case "ArrowDown":
+        this.activIndex = (this.activIndex + 1) % this.contextMenu.length;
+        break;
+      case "ArrowUp":
+        this.activIndex = (this.activIndex - 1 + this.contextMenu.length) % this.contextMenu.length;
+        break;
+      case "Escape":
+        this.hideContextMenu();
+        break;
+      case "Enter":
+        this.contextMenuItemClick(event, this.contextMenu[this.activIndex]);
+    }
+  }
+
+  contextMenuItemClick($event: any, item: any) {
+    item.action($event);
+    let focusedCell = this.gridApi.getFocusedCell();
+    this.gridApi.setFocusedCell(focusedCell.rowIndex, focusedCell.column.colId, null);
+    this.hideContextMenu();
+  }
+
   ngOnInit() {
     window.addEventListener('paste', this.insertNewRowsBeforePaste.bind(this));
+  }
 
-    setTimeout(() => {
-      (document.querySelector(".ag-body-viewport") as HTMLElement).addEventListener("contextmenu", (e: any) => {
-        e.preventDefault();
-        this.showContextMenu = true;
-        this.contextMenuX = e.clientX;
-        this.contextMenuY = e.clientY;
-        e.target.focus();
-      });
-    }, 2000);
-
+  onRowClicked(event: any) {
+    console.log(event);
   }
 
   hideContextMenu() {
@@ -142,6 +177,23 @@ export class AppComponent {
     this.gridApi = params.api;
     this.gridColumnApi = params.columnApi;
     this.gridApi.sizeColumnsToFit();
+
+    (document.querySelector(".ag-body-viewport") as HTMLElement).addEventListener("contextmenu", (e: any) => {
+      e.preventDefault();
+
+      this.gridApi.deselectAll();
+      this.gridApi.getDisplayedRowAtIndex(this.gridApi.getFocusedCell().rowIndex).setSelected(true);
+      this.showContextMenu = true;
+      this.contextMenuX = e.clientX;
+      this.contextMenuY = e.clientY;
+      this.activIndex = -1;
+
+      setTimeout(() => {
+        (document.querySelector(".context-menu") as HTMLElement).focus();
+
+      }, 100);
+
+    });
   }
 
   onTabToNextCell(event: any) {
@@ -175,27 +227,13 @@ export class AppComponent {
           itemPerCase: '',
           finish: ''
         }
-        // this.gridApi.updateRowData({ add: [row] });
-        // this.gridApi.sizeColumnsToFit();
       }
       return;
     }
-    // const fileReader = new FileReader();
-    // fileReader.readAsDataURL(files);
-    // fileReader.addEventListener("load", () => {
-    //   this.filePath = fileReader.result?.toString() || "";
-    //   this.params.setValue(this.filePath);
-    // });
-
-
-    console.log(event)
 
     let clipboardData = event.clipboardData.getData('text/plain');
 
     let rows = clipboardData.split('\n');
-
-
-
 
     let availableRows = this.gridApi.rowModel.getRowCount();
     if (startRowIndex + rows.length > availableRows) {
@@ -221,21 +259,27 @@ export class AppComponent {
       addIndex: this.gridApi.getFocusedCell().rowIndex
     });
     this.gridApi.sizeColumnsToFit();
-    this.hideContextMenu();
   }
 
   addRows(event: any) {
+    let focusedCell = this.gridApi.getFocusedCell();
+    let rowIndex = focusedCell ? focusedCell.rowIndex : this.gridApi.rowModel.getRowCount() - 1;
+    let noOfNewRows = 0;
+
     this.gridApi.updateRowData({
       add: Array(parseInt(((document.getElementById("add-row-input")) as HTMLInputElement).value)).fill({}),
-      addIndex: this.gridApi.getFocusedCell().rowIndex + 1
+      addIndex: rowIndex
     });
+
     this.gridApi.sizeColumnsToFit();
   }
 
   deleteRows(event: any) {
     const selectedRows = this.gridApi.getSelectedRows();
+    if (selectedRows.length == 0) {
+      alert("Please select at least one row to delete");
+    }
     this.gridApi.applyTransaction({ remove: selectedRows });
-    this.hideContextMenu();
     return true;
   }
 }

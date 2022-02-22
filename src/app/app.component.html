@@ -7,7 +7,7 @@
     <span style="width: 20px;"></span>
     <input type="number" style="height: 30px;" id="add-row-input" /> <button (click)="addRows($event)">Add Rows</button>
     <span style="width: 20px;"></span>
-    <button (click)="print()">Print</button>
+    <button (click)="print()">Print Preview</button>
 
   </div>
   <div class="container" style="flex: 1;">
@@ -17,25 +17,49 @@
     </ag-grid-angular>
   </div>
 </div>
+
 <div *ngIf="showPrintPage" class="frame">
   <div class="toolbar">
     <span class="inline input-container">
+      <label>Print Orientation</label>
+      <br>
+      <select [(ngModel)]="pageOrientation" style="width: 100px;" (change)="changePageOrientation()">
+        <option value="portrait">Portrait</option>
+        <option value="landscape">Landscape</option>
+      </select>
+    </span>
+    <span class="inline input-container">
+      <label>Print Layout</label>
+      <br>
+      <select [(ngModel)]="printLayout" (change)="print()">
+        <option value="two-block-print">Two Per Page</option>
+        <option value="three-block-print">Three Per Page</option>
+        <option value="four-block-print">Four Per page</option>
+      </select>
+    </span>
+    <span></span>
+    <span class="inline input-container">
       <label>Font Size</label> <br>
-      <input type="number" [(ngModel)]="fontSize" />
+      <input type="number" [(ngModel)]="fontSize" style="width: 60px;" />
     </span>
     <span class="inline input-container">
       <label>Line Margin</label>
       <br>
-      <input type="number" [(ngModel)]="marginBottom" />
+      <input type="number" [(ngModel)]="marginBottom" style="width: 75px;" />
     </span>
-    <span class="inline input-container">
-      <button (click)="closePrintPopup()">Close</button>
-    </span>
+    <div style="float: right;">
+      <span class="inline input-container">
+        <button (click)="printPage()" style="height: 55px;">Print</button>
+      </span>
+      <span class="inline input-container">
+        <button (click)="closePrintPopup()" style="height: 55px; padding: 10px 10px;">Close</button>
+      </span>
+    </div>
     <!-- <button>+</button>
     <button>-</button> -->
   </div>
   <div class="document">
-    <div *ngFor="let items of printPages" class="page">
+    <div *ngFor="let items of printPages" class="page" [ngClass]="[printLayout, pageOrientation]">
       <div *ngFor="let item of items" class="item">
         <div>
           <img src="{{item.image}}">
@@ -50,8 +74,8 @@
       </div>
     </div>
   </div>
-</div>
 
+</div>
 <diV *ngIf="showContextMenu" [ngStyle]="{position:'absolute', left:contextMenuX+'px', top:contextMenuY+'px'}"
   class="context-menu" tabindex="0" (keydown)="onContextMenuKeyPress($event)" (blur)="hideContextMenu()">
   <div *ngFor="let item of contextMenu;let i=index" class="menu-item" [ngClass]="{'item-active': i==activIndex}"

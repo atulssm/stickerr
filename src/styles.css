@@ -5,3 +5,10 @@ body, html {
     margin: 0;
     font-family: calibri;
 }
+
+.row-index-cell {
+    background-color: #e7e5e5;
+    font-weight: 600;
+    border-bottom: 1px solid black!important;
+    padding: 10px 10px!important;
+}

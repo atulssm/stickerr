@@ -19,6 +19,9 @@ export class AppComponent {
   marginBottom = 20;
   showContextMenu = false;
   showPrintPage = false;
+  printLayout = "four-block-print";
+  pageOrientation = "landscape";
+
   defaultColDef: ColDef = {
     editable: true,
     suppressKeyboardEvent: params => {
@@ -41,6 +44,12 @@ export class AppComponent {
   ]
 
   columnDefs: ColDef[] = [
+    {
+      headerName: "",
+      valueGetter: "node.rowIndex + 1",
+      width: 25,
+      cellClass: "text-center row-index-cell",
+    },
     {
       field: "image", cellRendererFramework: ImageCellRendererComponent, editable: false, width: 100,
       suppressKeyboardEvent: params => {
@@ -80,9 +89,20 @@ export class AppComponent {
   print() {
     this.printPages = [];
     console.log(this.rowData);
-    this.showPrintPage = true;
 
 
+    let itemPerPage = 4;
+    switch (this.printLayout) {
+      case "four-block-print":
+        itemPerPage = 4;
+        break;
+      case "two-block-print":
+        itemPerPage = 2;
+        break;
+      case "three-block-print":
+        itemPerPage = 3;
+        break;
+    }
 
     let printPages: any = [];
     let count = 0;
@@ -94,7 +114,7 @@ export class AppComponent {
 
       for (let j = 0; j < totalItems; j++) {
 
-        if (printPages.length == 4) {
+        if (printPages.length == itemPerPage) {
           this.printPages.push(printPages);
           printPages = [];
         }
@@ -105,7 +125,7 @@ export class AppComponent {
           code: row.code,
           qty: row.itemPerCase,
           itemPerCase: row.itemPerCase,
-          caseNo: `${count + this.startIndex}`,
+          caseNo: `${(count++) + this.startIndex}`,
           finish: row.finish
         }
         printPages.push(page);
@@ -116,8 +136,15 @@ export class AppComponent {
 
 
     })
-    this.printPages.push(printPages);
+    if (printPages.length > 0) {
+      this.printPages.push(printPages);
+    }
 
+    if (this.printPages.length == 0) {
+      alert("There is nothing to print on the page.\n Make sure Quatity and Item Per case columns is not zero.");
+    } else {
+      this.showPrintPage = true;
+    }
     // setTimeout((e: any) => { window.print(); }, 1000)
 
 
@@ -215,7 +242,7 @@ export class AppComponent {
       reader.readAsDataURL(file);
       reader.onload = (e: any) => {
 
-        let node = this.gridApi.getRow(startRowIndex);
+        let node = this.gridApi.rowModel.getRow(startRowIndex);
         let data = Object.assign({}, node.data);
         data["image"] = e.target.result;
         node.setData(data);
@@ -282,4 +309,29 @@ export class AppComponent {
     this.gridApi.applyTransaction({ remove: selectedRows });
     return true;
   }
+
+  cssPagedMedia = (function () {
+    var style = document.createElement('style');
+    style.innerHTML = `@page {
+      margin: 0cm;
+      size: A4 landscape;
+    }`;
+    document.head.appendChild(style);
+    return function (rule: string) {
+      style.innerHTML = rule;
+    };
+  }());
+
+  changePageOrientation() {
+    this.cssPagedMedia('@page {margin:0cm; size: A4 ' + this.pageOrientation + ';}');
+  }
+
+  printPage() {
+    if (this.printPages.length == 0) {
+      alert("There is nothing to print on the page. Please check.")
+    } else {
+      window.print();
+    }
+  }
 }
+

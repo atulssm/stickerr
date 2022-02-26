@@ -4,6 +4,10 @@
         display: none !important;
     }
 
+    .document {
+        padding: 0px;
+    }
+
     .frame {
         left: 0 !important;
         top: 0 !important;
@@ -87,6 +91,19 @@ button {
     margin: 1px;
 }
 
+.frame .toolbar .input-ribbon {
+    padding: 0px 10px;
+    border-left: 1px dashed #ccc;
+}
+
+.frame .toolbar .input-ribbon .title {
+    text-align: center;
+    width: 100%;
+    display: block;
+    background-color: aliceblue;
+    padding: 2px;
+}
+
 .inline {
     display: inline-block;
 }
@@ -110,12 +127,12 @@ button {
 
 .page.landscape {
     width: 297mm;
-    height: 200mm;
+    height: 210mm;
 }
 
 
 .page.portrait {
-    width: 200mm;
+    width: 210mm;
     height: 297mm;
 }
 
@@ -156,6 +173,15 @@ button {
     font-weight: bold;
 }
 
+
+.item .center-img-wrapper {
+    height: 100%;
+    width: 100%;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+
 .item img {
     max-height: 100%;
     max-width: 100%;
@@ -188,4 +214,3 @@ button {
 .context-menu .menu-item.item-active {
     background-color: #86ccee;
 }
-

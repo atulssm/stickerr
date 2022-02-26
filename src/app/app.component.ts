@@ -1,6 +1,6 @@
 import { keyframes } from '@angular/animations';
 import { Component } from '@angular/core';
-import { CellPosition, ColDef, TabToNextCellParams } from 'ag-grid-community';
+import { CellPosition, ColDef, IsRowSelectable, TabToNextCellParams } from 'ag-grid-community';
 import { ImageCellRendererComponent } from './image-cell-renderer/image-cell-renderer.component';
 
 type tplotOptions = {
@@ -21,7 +21,12 @@ export class AppComponent {
   showPrintPage = false;
   printLayout = "four-block-print";
   pageOrientation = "landscape";
-
+  pageMargin = {
+    top: 8,
+    right: 8,
+    bottom: 8,
+    left: 8
+  }
   defaultColDef: ColDef = {
     editable: true,
     suppressKeyboardEvent: params => {
@@ -33,6 +38,20 @@ export class AppComponent {
         }, 10);
 
 
+      } else if (params.event.code == "Delete") {
+
+        const selectedRows = this.gridApi.getSelectedRows();
+        if (selectedRows.length > 0) {
+          this.deleteRows(params.event);
+
+          let focusedCell = this.gridApi.getFocusedCell();
+          let rowIndex = this.gridApi.rowModel.getRowCount() > focusedCell.rowIndex ? focusedCell.rowIndex : this.gridApi.rowModel.getRowCount() - 1;
+          this.gridApi.setFocusedCell(rowIndex, focusedCell.column.colId, null);
+
+          return true
+        } else {
+          return false;
+        }
       }
       return false;
     }
@@ -65,6 +84,8 @@ export class AppComponent {
             node.setData(data);
             // Delete all selected cell ranges...
             return true
+          } else if (params.event.code === "Enter") {
+            this.gridApi.startEditingCell({ rowIndex: params.node.rowIndex, colKey: params.colDef.field });
           }
         }
         return false;
@@ -188,10 +209,12 @@ export class AppComponent {
   }
 
   ngOnInit() {
-    window.addEventListener('paste', this.insertNewRowsBeforePaste.bind(this));
+    window.addEventListener('paste', this.processPasteEvent.bind(this));
   }
 
   onRowClicked(event: any) {
+    return false;
+    event.stopPropagation();
     console.log(event);
   }
 
@@ -207,6 +230,7 @@ export class AppComponent {
 
     (document.querySelector(".ag-body-viewport") as HTMLElement).addEventListener("contextmenu", (e: any) => {
       e.preventDefault();
+      e.stopPropagation();
 
       this.gridApi.deselectAll();
       this.gridApi.getDisplayedRowAtIndex(this.gridApi.getFocusedCell().rowIndex).setSelected(true);
@@ -230,7 +254,7 @@ export class AppComponent {
     }
   }
 
-  insertNewRowsBeforePaste(event: any) {
+  processPasteEvent(event: any) {
 
     let focusedCell = this.gridApi.getFocusedCell();
     let startRowIndex = focusedCell.rowIndex;
@@ -306,6 +330,7 @@ export class AppComponent {
     if (selectedRows.length == 0) {
       alert("Please select at least one row to delete");
     }
+
     this.gridApi.applyTransaction({ remove: selectedRows });
     return true;
   }
@@ -313,7 +338,7 @@ export class AppComponent {
   cssPagedMedia = (function () {
     var style = document.createElement('style');
     style.innerHTML = `@page {
-      margin: 0cm;
+      margin: 0mm;
       size: A4 landscape;
     }`;
     document.head.appendChild(style);

@@ -1,5 +1,7 @@
-<div style="width: 100%; height: 100%;" (dblclick)="fileInput.click()">
+<div style="width: 100%; height: 100%;" (dblclick)="fileInput.click()" (keypress)="fileInput.click()">
+
     <img style="box-sizing: border-box;max-height: 100%; max-width: 100%; " src="{{params.value}}"
         (keypress)="fileInput.click()" />
     <input type="file" #fileInput (change)="onFileChange($event)" />
+
 </div>
